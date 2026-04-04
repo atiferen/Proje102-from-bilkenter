@@ -1,0 +1,1 @@
+# Proje102-from-bilkenter
