@@ -342,4 +342,43 @@ public class MainWindow extends JFrame{
         }
     }
 
+    private class ListingCard extends JPanel {
+        ListingCard(Listing listing, boolean premium) {
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            setOpaque(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            JLabel image = new JLabel(loadImage(listing.getImagePath(), 390, 250));
+            image.setAlignmentX(Component.LEFT_ALIGNMENT);
+            if (premium) {
+                image.setLayout(null);
+                JLabel badge = new JLabel("Premium");
+                badge.setOpaque(true);
+                badge.setBackground(Theme.PRIMARY);
+                badge.setForeground(Color.WHITE);
+                badge.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+                badge.setBounds(310, 12, 72, 24);
+                image.add(badge);
+            }
+            add(image);
+            add(Box.createVerticalStrut(16));
+            add(wrapLabel(listing.getTitle(), Theme.TEXT, 16, Font.BOLD, 380));
+            add(Box.createVerticalStrut(10));
+            add(label(listing.getPrice() == 0 ? "FREE" : "TL " + listing.getPrice(), Theme.TEXT, 17, Font.BOLD));
+            add(Box.createVerticalStrut(8));
+            User seller = appState.getSeller(listing);
+            add(label(seller.getName() + " " + seller.getSurname().charAt(0) + ".", Theme.MUTED, 13, Font.PLAIN));
+
+            MouseAdapter open = new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    openListing(listing);
+                }
+            };
+            addMouseListener(open);
+            image.addMouseListener(open);
+        }
+    }
+
+
 }
