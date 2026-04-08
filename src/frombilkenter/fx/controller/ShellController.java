@@ -19,7 +19,7 @@ import javafx.scene.layout.StackPane;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShellContoller {
+public class ShellController {
     @FXML private ImageView logoImage;
     @FXML private Button homeButton;
     @FXML private Button sellButton;
@@ -84,15 +84,22 @@ public class ShellContoller {
     }
 
     private void loadPage(String key) throws Exception {
-        String fxml = switch (key) {
-            case "home" -> "/fxml/HomeView.fxml";
-            case "detail" -> "/fxml/DetailView.fxml";
-            case "sell" -> "/fxml/SellView.fxml";
-            case "leaderboard" -> "/fxml/LeaderboardView.fxml";
-            case "profile" -> "/fxml/ProfileView.fxml";
-            case "admin" -> "/fxml/AdminView.fxml";
-            default -> throw new IllegalArgumentException("Unknown page: " + key);
-        };
+        String fxml;
+        if ("home".equals(key)) {
+            fxml = "/fxml/HomeView.fxml";
+        } else if ("detail".equals(key)) {
+            fxml = "/fxml/DetailView.fxml";
+        } else if ("sell".equals(key)) {
+            fxml = "/fxml/SellView.fxml";
+        } else if ("leaderboard".equals(key)) {
+            fxml = "/fxml/LeaderboardView.fxml";
+        } else if ("profile".equals(key)) {
+            fxml = "/fxml/ProfileView.fxml";
+        } else if ("admin".equals(key)) {
+            fxml = "/fxml/AdminView.fxml";
+        } else {
+            throw new IllegalArgumentException("Unknown page: " + key);
+        }
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
         Parent root = loader.load();
         PageController controller = loader.getController();
