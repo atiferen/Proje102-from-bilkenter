@@ -228,4 +228,42 @@ public class MainWindow extends JFrame{
             add(card);
         }
     }
+
+     private class NavBar extends JPanel {
+        NavBar() {
+            setLayout(new BorderLayout());
+            setBackground(Color.WHITE);
+            setBorder(BorderFactory.createEmptyBorder(18, 28, 18, 28));
+            add(new SmallLogo(), BorderLayout.WEST);
+
+            JPanel links = new JPanel(new FlowLayout(FlowLayout.RIGHT, 24, 6));
+            links.setOpaque(false);
+            links.add(nav("Home", PAGE_HOME, true));
+            if (appState.getCurrentUser().isSeller()) {
+                links.add(nav("Sell", PAGE_SELL, false));
+            }
+            links.add(nav("Leaderboard", PAGE_LEADERBOARD, false));
+            links.add(nav("Profile", PAGE_PROFILE, false));
+            if (appState.getCurrentUser().isAdmin()) {
+                links.add(nav("Admin Panel", PAGE_ADMIN, false));
+            }
+            JButton signOut = nav("Sign Out", null, false);
+            signOut.addActionListener(e -> showSignOutDialog());
+            links.add(signOut);
+            add(links, BorderLayout.EAST);
+        }
+
+        private JButton nav(String text, String target, boolean active) {
+            JButton button = new JButton(text);
+            button.setContentAreaFilled(false);
+            button.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+            button.setForeground(active ? Theme.PRIMARY_DARK : Theme.MUTED);
+            button.setFont(Theme.SMALL.deriveFont(14f));
+            button.setMargin(new Insets(8, 8, 8, 8));
+            if (target != null) {
+                button.addActionListener(e -> showPage(target));
+            }
+            return button;
+        }
+    }
 }
