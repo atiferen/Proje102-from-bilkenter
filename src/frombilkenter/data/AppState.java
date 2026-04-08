@@ -388,4 +388,58 @@ public class AppState {
     public void toggleFavorite(Listing listing) {
         currentUser.toggleFavorite(listing.getListingId());
         persistUser(currentUser);
+    } public void approveRequest(ListingRequest request) {
+        request.getListing().setCreatedAt(LocalDateTime.now());
+        request.getListing().setExpireAt(LocalDateTime.now().plusDays(30));
+        request.getListing().setStatus(ListingStatus.APPROVED);
+        listings.add(request.getListing());
+        requests.remove(request);
+        persistListing(request.getListing());
+        deleteRequest(request.getRequestId());
+    }
+
+    public void rejectRequest(ListingRequest request, String reason) {
+        request.getListing().setStatus(ListingStatus.REJECTED);
+        request.setReason(reason);
+        request.getListing().setStatus(ListingStatus.REJECTED);
+        listings.add(request.getListing());
+        requests.remove(request);
+        persistListing(request.getListing());
+        deleteRequest(request.getRequestId());
+    }
+
+    public void submitRequest(String title, String category, String brand, int price, String condition, String description, String imagePath,
+                              String phoneNumber, boolean emailVisible, boolean giveaway, String size, String courseCode) {
+        String id = "r" + (requests.size() + 10);
+        Listing listing = new Listing("draft" + id, title, currentUser.getUserId(), category, "Space Gray", condition,
+            giveaway ? 0 : price, giveaway, brand, size, courseCode, phoneNumber, imagePath, description, emailVisible,
+            LocalDateTime.now(), LocalDateTime.now().plusDays(30), ListingStatus.PENDING);
+        ListingRequest request = new ListingRequest(id, listing, LocalDate.now(), "");
+        requests.add(request);
+        persistRequest(request);
+    }
+
+    public void deleteListing(Listing listing) {
+        listings.removeIf(existing -> existing.getListingId().equals(listing.getListingId()));
+        for (User user : users.values()) {
+            user.getFavoriteListingIds().removeIf(listingId -> listingId.equals(listing.getListingId()));
+            persistUser(user);
+        }
+        if (repository != null) {
+            repository.deleteListing(listing.getListingId());
+        }
+    }
+
+    public ActionResult markListingSold(Listing listing) {
+        if (currentUser == null || listing == null) {
+            return new ActionResult(false, "Listing could not be marked as sold.");
+        }
+        if (!listing.getSellerId().equals(currentUser.getUserId())) {
+            return new ActionResult(false, "You can only mark your own listings as sold.");
+        }
+        deleteListing(listing);
+        currentUser.incrementCompletedSales();
+        updatePremiumStatus(currentUser);
+        persistUser(currentUser);
+        return new ActionResult(true, "Listing marked as sold.");
     }
