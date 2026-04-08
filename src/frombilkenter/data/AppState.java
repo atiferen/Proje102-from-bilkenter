@@ -315,4 +315,77 @@ public class AppState {
         currentUser.setDepartment(department.trim());
         persistUser(currentUser);
         return new ActionResult(true, "Profile updated successfully.");
+    }public User getSeller(Listing listing) {
+        return users.get(listing.getSellerId());
+    }
+
+    public List<User> getLeaderboardUsers() {
+        cleanupExpiredListings();
+        return users.values().stream()
+            .filter(User::isSeller)
+            .sorted(Comparator.comparingInt(User::getCompletedSales).reversed())
+            .collect(Collectors.toList());
+    }
+
+    public List<Listing> getApprovedListings(FilterState filter, SortMode sortMode) {
+        cleanupExpiredListings();
+        return listings.stream()
+            .filter(l -> l.getStatus() == ListingStatus.APPROVED)
+            .filter(l -> !l.isExpired())
+            .filter(l -> filter.categories.isEmpty() || filter.categories.contains(l.getCategory()))
+            .filter(l -> filter.colors.isEmpty() || filter.colors.contains(l.getColor()))
+            .filter(l -> filter.conditions.isEmpty() || filter.conditions.contains(l.getCondition()))
+            .filter(l -> !filter.premiumOnly || getSeller(l).isPremium())
+            .filter(l -> filter.search.isBlank()
+                || l.getTitle().toLowerCase().contains(filter.search.toLowerCase())
+                || l.getDescription().toLowerCase().contains(filter.search.toLowerCase()))
+            .sorted(getComparator(sortMode))
+            .collect(Collectors.toList());
+    }
+
+    private Comparator<Listing> getComparator(SortMode sortMode) {
+        return switch (sortMode) {
+            case PRICE_LOW_HIGH -> Comparator.comparingInt(Listing::getPrice);
+            case PRICE_HIGH_LOW -> Comparator.comparingInt(Listing::getPrice).reversed();
+            case ALPHABETICAL -> Comparator.comparing(Listing::getTitle, String.CASE_INSENSITIVE_ORDER);
+        };
+    }
+
+    public List<ListingRequest> getRequests() {
+        return requests;
+    }
+
+    public List<Listing> getApprovedListingsForAdmin() {
+        cleanupExpiredListings();
+        return listings.stream()
+            .filter(listing -> listing.getStatus() == ListingStatus.APPROVED)
+            .toList();
+    }
+
+    public List<Listing> getRejectedListings() {
+        cleanupExpiredListings();
+        return listings.stream()
+            .filter(listing -> listing.getStatus() == ListingStatus.REJECTED)
+            .toList();
+    }
+
+    public List<Listing> getFavorites() {
+        cleanupExpiredListings();
+        return listings.stream()
+            .filter(l -> currentUser.getFavoriteListingIds().contains(l.getListingId()))
+            .filter(l -> !l.isExpired())
+            .collect(Collectors.toList());
+    }
+
+    public List<Listing> getMyListings() {
+        cleanupExpiredListings();
+        return listings.stream()
+            .filter(l -> l.getSellerId().equals(currentUser.getUserId()))
+            .filter(l -> !l.isExpired())
+            .collect(Collectors.toList());
+    }
+
+    public void toggleFavorite(Listing listing) {
+        currentUser.toggleFavorite(listing.getListingId());
+        persistUser(currentUser);
     }
