@@ -731,5 +731,291 @@ public class MainWindow extends JFrame{
     private class AdminPanel extends JPanel {
         private final JPanel cards = new JPanel();
 
+        AdminPanel() {
+            setBackground(Color.WHITE);
+            setLayout(new BorderLayout());
+            JPanel content = new JPanel();
+            content.setBackground(Color.WHITE);
+            content.setBorder(BorderFactory.createEmptyBorder(32, 60, 50, 60));
+            content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+            content.add(label("Admin Panel", Theme.TEXT, 28, Font.BOLD));
+            content.add(Box.createVerticalStrut(36));
+            content.add(label("Pending Sale Listings", Theme.TEXT, 22, Font.BOLD));
+            content.add(Box.createVerticalStrut(20));
+            cards.setOpaque(false);
+            cards.setLayout(new BoxLayout(cards, BoxLayout.Y_AXIS));
+            content.add(cards);
+            add(content, BorderLayout.NORTH);
+        }
+
+        void refresh() {
+            cards.removeAll();
+            for (ListingRequest request : appState.getRequests()) {
+                cards.add(new AdminRequestCard(request));
+                cards.add(Box.createVerticalStrut(12));
+            }
+            cards.revalidate();
+            cards.repaint();
+        }
+    }
+
+    private class AdminRequestCard extends JPanel {
+        AdminRequestCard(ListingRequest request) {
+            setBackground(Color.WHITE);
+            setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                BorderFactory.createEmptyBorder(14, 14, 14, 14)));
+            setLayout(new BorderLayout(16, 16));
+            add(new JLabel(loadImage(request.getListing().getImagePath(), 70, 70)), BorderLayout.WEST);
+
+            JPanel center = new JPanel(new GridLayout(1, 5, 18, 0));
+            center.setOpaque(false);
+            center.add(wrapLabel(request.getListing().getTitle(), Theme.TEXT, 15, Font.BOLD, 170));
+            center.add(wrapLabel(appState.getSeller(request.getListing()).getFullName(), Theme.TEXT, 15, Font.PLAIN, 150));
+            center.add(wrapLabel(request.getListing().getCategory(), Theme.TEXT, 15, Font.PLAIN, 140));
+            center.add(label(request.getListing().getPrice() == 0 ? "FREE" : "TL " + request.getListing().getPrice(),
+                request.getListing().getPrice() == 0 ? new Color(0xC13B3B) : Theme.TEXT, 15, Font.PLAIN));
+            center.add(wrapLabel(request.getListing().getCondition(), Theme.TEXT, 15, Font.PLAIN, 120));
+            add(center, BorderLayout.CENTER);
+
+            JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 12));
+            actions.setOpaque(false);
+            JButton approve = UiFactory.primaryButton("Approve");
+            JButton reject = UiFactory.secondaryButton("Reject");
+            JButton delete = new JButton("Delete");
+            delete.setContentAreaFilled(false);
+            delete.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+
+            approve.addActionListener(e -> {
+                appState.approveRequest(request);
+                refreshAll();
+            });
+            reject.addActionListener(e -> {
+                appState.rejectRequest(request, "Rejected by admin");
+                refreshAll();
+            });
+            delete.addActionListener(e -> {
+                appState.rejectRequest(request, "Deleted by admin");
+                refreshAll();
+            });
+
+            actions.add(approve);
+            actions.add(reject);
+            actions.add(delete);
+            add(actions, BorderLayout.EAST);
+        }
+    }
+
+    private void showFiltersDialog() {
+        JDialog dialog = baseDialog("Filters", 310, 620);
+        JPanel body = dialogBody();
+        body.add(filterGroup("Category", new String[]{"Books / Course Materials", "Electronics", "Clothing", "Vehicles"}, filterState.categories));
+        body.add(Box.createVerticalStrut(20));
+        body.add(filterGroup("Color", new String[]{"Black", "White", "Silver", "Red", "Blue", "Green"}, filterState.colors));
+        body.add(Box.createVerticalStrut(20));
+        body.add(filterGroup("Condition", new String[]{"New", "Like New", "Good", "Fair", "Poor"}, filterState.conditions));
+        body.add(Box.createVerticalStrut(20));
+        body.add(label("Premium Only", Theme.MUTED, 15, Font.BOLD));
+        body.add(Box.createVerticalStrut(10));
+        JCheckBox premiumOnly = new JCheckBox("Show only premium listings", filterState.premiumOnly);
+        premiumOnly.setOpaque(false);
+        premiumOnly.addActionListener(e -> filterState.premiumOnly = premiumOnly.isSelected());
+        body.add(premiumOnly);
+        dialog.add(body);
+        dialog.setVisible(true);
+        refreshAll();
+    }
+
+    private JPanel filterGroup(String title, String[] values, java.util.Set<String> target) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(label(title, Theme.MUTED, 15, Font.BOLD));
+        panel.add(Box.createVerticalStrut(10));
+        for (String value : values) {
+            JCheckBox box = new JCheckBox(value, target.contains(value));
+            box.setOpaque(false);
+            box.addActionListener(e -> {
+                if (box.isSelected()) {
+                    target.add(value);
+                } else {
+                    target.remove(value);
+                }
+            });
+            panel.add(box);
+            panel.add(Box.createVerticalStrut(6));
+        }
+        return panel;
+    }
+
+    private void showRegistrationDialog() {
+        JDialog dialog = baseDialog("Create Account", 500, 560);
+        JPanel body = dialogBody();
+        for (String hint : List.of("Bilkent E-mail", "Name", "Surname", "Department", "Password", "Confirm Password")) {
+            body.add(UiFactory.textField(hint));
+            body.add(Box.createVerticalStrut(14));
+        }
+        JButton create = UiFactory.primaryButton("Create Account");
+        create.addActionListener(e -> {
+            dialog.dispose();
+            showVerificationDialog();
+        });
+        body.add(create);
+        dialog.add(body);
+        dialog.setVisible(true);
+    }
+
+    private void showVerificationDialog() {
+        JDialog dialog = baseDialog("Verification Code", 420, 220);
+        JPanel body = dialogBody();
+        body.add(label("Check your Bilkent e-mail to get your verification code", Theme.MUTED, 14, Font.PLAIN));
+        body.add(Box.createVerticalStrut(18));
+        body.add(UiFactory.textField("Enter verification code"));
+        body.add(Box.createVerticalStrut(18));
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        actions.setOpaque(false);
+        JButton cancel = UiFactory.secondaryButton("Cancel");
+        JButton ok = UiFactory.primaryButton("OK");
+        cancel.addActionListener(e -> dialog.dispose());
+        ok.addActionListener(e -> dialog.dispose());
+        actions.add(cancel);
+        actions.add(ok);
+        body.add(actions);
+        dialog.add(body);
+        dialog.setVisible(true);
+    }
+
+    private void showResetPasswordDialog() {
+        JDialog dialog = baseDialog("Forgot Password", 430, 210);
+        JPanel body = dialogBody();
+        body.add(label("Enter your Bilkent e-mail to receive a verification code", Theme.MUTED, 14, Font.PLAIN));
+        body.add(Box.createVerticalStrut(18));
+        JTextField emailField = UiFactory.textField("Bilkent E-mail");
+        emailField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        emailField.setPreferredSize(new Dimension(360, 46));
+        emailField.setMaximumSize(new Dimension(360, 46));
+        body.add(emailField);
+        body.add(Box.createVerticalStrut(18));
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        actions.setOpaque(false);
+        JButton cancel = UiFactory.secondaryButton("Cancel");
+        JButton ok = UiFactory.primaryButton("Send Code");
+        cancel.addActionListener(e -> dialog.dispose());
+        ok.addActionListener(e -> {
+            String email = emailField.getText().trim();
+            if (email.isBlank()) {
+                JOptionPane.showMessageDialog(dialog, "Please enter your Bilkent e-mail.");
+                return;
+            }
+            dialog.dispose();
+            showResetPasswordVerificationDialog(email);
+        });
+        actions.add(cancel);
+        actions.add(ok);
+        body.add(actions);
+        dialog.add(body);
+        dialog.setVisible(true);
+    }
+
+    private void showResetPasswordVerificationDialog(String email) {
+        JDialog dialog = baseDialog("Reset Password", 430, 320);
+        JPanel body = dialogBody();
+        body.add(label("Enter the verification code sent to " + email, Theme.MUTED, 14, Font.PLAIN));
+        body.add(Box.createVerticalStrut(18));
+
+        JTextField codeField = UiFactory.textField("Verification Code");
+        JTextField newPasswordField = UiFactory.textField("New Password");
+        JTextField confirmPasswordField = UiFactory.textField("Confirm New Password");
+
+        for (JComponent component : List.of(codeField, newPasswordField, confirmPasswordField)) {
+            component.setAlignmentX(Component.CENTER_ALIGNMENT);
+            component.setPreferredSize(new Dimension(360, 46));
+            component.setMaximumSize(new Dimension(360, 46));
+            body.add(component);
+            body.add(Box.createVerticalStrut(12));
+        }
+
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        actions.setOpaque(false);
+        JButton cancel = UiFactory.secondaryButton("Cancel");
+        JButton ok = UiFactory.primaryButton("OK");
+        cancel.addActionListener(e -> dialog.dispose());
+        ok.addActionListener(e -> {
+            String code = codeField.getText().trim();
+            String newPassword = newPasswordField.getText();
+            String confirmPassword = confirmPasswordField.getText();
+
+            if (code.isBlank() || newPassword.isBlank() || confirmPassword.isBlank()) {
+                JOptionPane.showMessageDialog(dialog, "Please fill in all fields.");
+                return;
+            }
+            if (!newPassword.equals(confirmPassword)) {
+                JOptionPane.showMessageDialog(dialog, "Confirm password must match the new password.");
+                return;
+            }
+            JOptionPane.showMessageDialog(dialog, "Verification code sent to " + email + " and password reset completed.");
+            dialog.dispose();
+        });
+        actions.add(cancel);
+        actions.add(ok);
+        body.add(actions);
+        dialog.add(body);
+        dialog.setVisible(true);
+    }
+
+    private void showSignOutDialog() {
+        JDialog dialog = baseDialog("Confirm Sign Out", 320, 180);
+        JPanel body = dialogBody();
+        body.add(label("Are you sure you want to sign out?", Theme.MUTED, 14, Font.PLAIN));
+        body.add(Box.createVerticalStrut(18));
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        actions.setOpaque(false);
+        JButton cancel = UiFactory.secondaryButton("Cancel");
+        JButton signOut = UiFactory.primaryButton("Sign Out");
+        cancel.addActionListener(e -> dialog.dispose());
+        signOut.addActionListener(e -> {
+            dialog.dispose();
+            showPage(PAGE_LOGIN);
+        });
+        actions.add(cancel);
+        actions.add(signOut);
+        body.add(actions);
+        dialog.add(body);
+        dialog.setVisible(true);
+    }
+
+    private void showChangePasswordDialog() {
+        JDialog dialog = baseDialog("Change Password", 420, 290);
+        JPanel body = dialogBody();
+        body.add(label("Enter your current password and choose a new one", Theme.MUTED, 14, Font.PLAIN));
+        body.add(Box.createVerticalStrut(18));
+        for (String hint : List.of("Current Password", "New Password", "New Password Again")) {
+            body.add(UiFactory.textField(hint));
+            body.add(Box.createVerticalStrut(12));
+        }
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        actions.setOpaque(false);
+        JButton cancel = UiFactory.secondaryButton("Cancel");
+        JButton ok = UiFactory.primaryButton("OK");
+        cancel.addActionListener(e -> dialog.dispose());
+        ok.addActionListener(e -> dialog.dispose());
+        actions.add(cancel);
+        actions.add(ok);
+        body.add(actions);
+        dialog.add(body);
+        dialog.setVisible(true);
+    }
+
+    private class SmallLogo extends JPanel {
+        private final JLabel iconLabel;
+
+        SmallLogo() {
+            setOpaque(false);
+            setPreferredSize(new Dimension(74, 74));
+            setLayout(new BorderLayout());
+            iconLabel = new JLabel(loadImage("assets/logo.png", 56, 56));
+            add(iconLabel, BorderLayout.CENTER);
+        }
+    }
 
 }
