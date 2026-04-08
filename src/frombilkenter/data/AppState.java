@@ -150,3 +150,70 @@ public class AppState {
 
         currentUser = lina;
     }
+      private void initializePersistence() {
+        if (!mongoSyncManager.isConfigured()) {
+            return;
+        }
+        try {
+            repository = mongoSyncManager.openRepository();
+            repository.seedIfEmpty(new ArrayList<>(users.values()), new ArrayList<>(listings), new ArrayList<>(requests));
+            loadFromRepository();
+            normalizeAllUserPasswords();
+        } catch (Exception exception) {
+            repository = null;
+            System.err.println("MongoDB connection failed, continuing with seed data: " + exception.getMessage());
+        }
+    }
+
+    private void loadFromRepository() {
+        users.clear();
+        listings.clear();
+        requests.clear();
+        for (User user : repository.loadUsers()) {
+            users.put(user.getUserId(), user);
+        }
+        normalizePremiumStatuses();
+        listings.addAll(repository.loadListings());
+        requests.addAll(repository.loadRequests());
+        cleanupExpiredListings();
+        currentUser = users.getOrDefault("u1", users.values().stream().findFirst().orElse(null));
+    }
+
+    public MongoSyncManager getMongoSyncManager() {
+        return mongoSyncManager;
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public User findUserByEmail(String email) {
+        return users.values().stream()
+            .filter(user -> user.getEmail().equalsIgnoreCase(email))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public User registerUser(String email, String name, String surname, String department, String password) {
+        String userId = "u" + (users.size() + 10);
+        User user = new User(userId, email, name, surname, department, UserRole.SELLER, false, 0);
+        user.setPassword(password);
+        updatePremiumStatus(user);
+        users.put(userId, user);
+        persistUser(user);
+        currentUser = user;
+        return user;
+    }
+
+    public User authenticate(String email, String password) {
+        User user = findUserByEmail(email);
+        if (user != null && user.matchesPassword(password)) {
+            currentUser = user;
+            return user;
+        }
+        return null;
+    }
