@@ -381,4 +381,191 @@ public class MainWindow extends JFrame{
     }
 
 
+    private class DetailPanel extends JPanel {
+        private final JLabel title = label("", Theme.TEXT, 24, Font.BOLD);
+        private final JLabel price = label("", Theme.TEXT, 28, Font.BOLD);
+        private final JLabel image = new JLabel();
+        private final JButton favorite = new JButton("\u2661");
+        private final JPanel info = new JPanel(new GridLayout(0, 2, 0, 18));
+        private final JTextArea description = new JTextArea();
+
+        DetailPanel() {
+            setBackground(Color.WHITE);
+            setLayout(new BorderLayout());
+            JPanel content = new JPanel(new BorderLayout(40, 20));
+            content.setBackground(Color.WHITE);
+            content.setBorder(BorderFactory.createEmptyBorder(30, 50, 50, 50));
+            content.add(image, BorderLayout.WEST);
+
+            JPanel right = new JPanel();
+            right.setOpaque(false);
+            right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
+
+            JPanel titleRow = new JPanel(new BorderLayout());
+            titleRow.setOpaque(false);
+            titleRow.add(title, BorderLayout.WEST);
+            favorite.setContentAreaFilled(false);
+            favorite.setBorder(BorderFactory.createEmptyBorder());
+            favorite.setFont(new Font("Dialog", Font.PLAIN, 24));
+            favorite.addActionListener(e -> {
+                if (selectedListing != null) {
+                    appState.toggleFavorite(selectedListing);
+                    refresh();
+                }
+            });
+            titleRow.add(favorite, BorderLayout.EAST);
+            right.add(titleRow);
+            right.add(Box.createVerticalStrut(14));
+            right.add(price);
+            right.add(Box.createVerticalStrut(18));
+            JButton contact = UiFactory.primaryButton("Contact Seller");
+            contact.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contact.addActionListener(e -> JOptionPane.showMessageDialog(this,
+                "An e-mail draft would be created for: " + appState.getSeller(selectedListing).getEmail()));
+            right.add(contact);
+            right.add(Box.createVerticalStrut(28));
+            info.setOpaque(false);
+            right.add(info);
+            right.add(Box.createVerticalStrut(28));
+            description.setLineWrap(true);
+            description.setWrapStyleWord(true);
+            description.setEditable(false);
+            description.setOpaque(false);
+            description.setFont(Theme.BODY);
+            description.setForeground(Theme.TEXT);
+            right.add(description);
+            content.add(right, BorderLayout.CENTER);
+            add(content, BorderLayout.NORTH);
+        }
+
+        void refresh() {
+            if (selectedListing == null) {
+                selectedListing = appState.getApprovedListings(filterState, sortMode).stream().findFirst().orElse(null);
+            }
+            if (selectedListing == null) {
+                return;
+            }
+            User seller = appState.getSeller(selectedListing);
+            image.setIcon(loadImage(selectedListing.getImagePath(), 520, 650));
+            title.setText(selectedListing.getTitle());
+            price.setText(selectedListing.getPrice() == 0 ? "FREE" : "TL " + selectedListing.getPrice());
+            favorite.setText(appState.getCurrentUser().getFavoriteListingIds().contains(selectedListing.getListingId()) ? "\u2665" : "\u2661");
+            info.removeAll();
+            addInfo("Seller", seller.getFullName());
+            addInfo("Email", seller.getEmail());
+            addInfo("Department", seller.getDepartment());
+            addInfo("Condition", selectedListing.getCondition());
+            addInfo("Color", selectedListing.getColor());
+            addInfo("Remaining Time", selectedListing.getRemainingDays() + " days");
+            addInfo("Status", seller.isPremium() ? "Premium Seller" : "Standard Seller");
+            description.setText(selectedListing.getDescription());
+        }
+
+        private void addInfo(String key, String value) {
+            info.add(label(key, Theme.MUTED, 15, Font.PLAIN));
+            JLabel val = label(value, value.contains("Premium") ? Theme.PRIMARY_DARK : Theme.TEXT, 15, Font.PLAIN);
+            val.setHorizontalAlignment(SwingConstants.RIGHT);
+            info.add(val);
+        }
+    }
+
+    private class SellPanel extends JPanel {
+        private final JTextField titleField = UiFactory.textField("MacBook Pro");
+        private final JComboBox<String> categoryBox = new JComboBox<>(new String[]{"Electronics", "Books / Course Materials", "Clothing", "Vehicles"});
+        private final JTextField brandField = UiFactory.textField("Apple");
+        private final JTextField priceField = UiFactory.textField("60000");
+        private final JComboBox<String> conditionBox = new JComboBox<>(new String[]{"New", "Like New", "Good", "Fair", "Poor"});
+        private final JTextArea description = new JTextArea("M3 chip. Very good condition.");
+        private final UiFactory.DashedPanel upload = new UiFactory.DashedPanel();
+        private final JLabel uploadPreview = new JLabel();
+        private final JLabel uploadLabel = label("Upload Image", Theme.MUTED, 15, Font.PLAIN);
+        private String selectedImagePath = "assets/macbook.jpeg";
+
+        SellPanel() {
+            setBackground(Color.WHITE);
+            setLayout(new GridBagLayout());
+            JPanel form = new JPanel();
+            form.setOpaque(false);
+            form.setPreferredSize(new Dimension(480, 720));
+            form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+            form.add(Box.createVerticalStrut(10));
+            form.add(label("Create Sale Ad Request", Theme.TEXT, 24, Font.BOLD));
+            form.add(Box.createVerticalStrut(24));
+
+            for (JComponent c : List.of(titleField, categoryBox, brandField, priceField, conditionBox)) {
+                UiFactory.alignLeft(c);
+                c.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+                form.add(c);
+                form.add(Box.createVerticalStrut(18));
+            }
+
+            description.setLineWrap(true);
+            description.setWrapStyleWord(true);
+            description.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Theme.BORDER),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+            description.setMaximumSize(new Dimension(Integer.MAX_VALUE, 140));
+            form.add(description);
+            form.add(Box.createVerticalStrut(26));
+
+            upload.setLayout(new GridBagLayout());
+            upload.setPreferredSize(new Dimension(480, 140));
+            upload.setMaximumSize(new Dimension(Integer.MAX_VALUE, 140));
+            upload.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            uploadPreview.setHorizontalAlignment(SwingConstants.CENTER);
+            upload.add(uploadLabel);
+            refreshUploadPreview();
+            MouseAdapter chooserOpener = new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    chooseImageFile();
+                }
+            };
+            upload.addMouseListener(chooserOpener);
+            uploadPreview.addMouseListener(chooserOpener);
+            uploadLabel.addMouseListener(chooserOpener);
+            form.add(upload);
+            form.add(Box.createVerticalStrut(26));
+
+            JButton submit = UiFactory.primaryButton("Send Request");
+            submit.addActionListener(e -> {
+                int price = Integer.parseInt(priceField.getText().trim());
+                appState.submitRequest(titleField.getText(), (String) categoryBox.getSelectedItem(), brandField.getText(),
+                    price, (String) conditionBox.getSelectedItem(), description.getText(), selectedImagePath, "", true,
+                    false, "", "");
+                JOptionPane.showMessageDialog(this, "Request submitted for admin approval.");
+                showPage(PAGE_PROFILE);
+            });
+            form.add(submit);
+            add(form);
+        }
+
+        private void chooseImageFile() {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Select listing image");
+            chooser.setFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png", "gif", "bmp"));
+            int result = chooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                selectedImagePath = chooser.getSelectedFile().getAbsolutePath();
+                refreshUploadPreview();
+            }
+        }
+
+        private void refreshUploadPreview() {
+            upload.removeAll();
+            if (selectedImagePath != null && !selectedImagePath.isBlank()) {
+                uploadPreview.setIcon(loadImage(selectedImagePath, 150, 95));
+                upload.add(uploadPreview);
+                upload.add(Box.createHorizontalStrut(18));
+                uploadLabel.setText(new File(selectedImagePath).getName());
+                upload.add(uploadLabel);
+            } else {
+                uploadLabel.setText("Upload Image");
+                upload.add(uploadLabel);
+            }
+            upload.revalidate();
+            upload.repaint();
+        }
+    }
+
 }
