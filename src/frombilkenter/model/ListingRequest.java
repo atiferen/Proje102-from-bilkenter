@@ -1,3 +1,4 @@
+package frombilkenter.model;
 import java.time.LocalDate;
 
 public class ListingRequest {
