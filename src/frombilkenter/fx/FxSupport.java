@@ -8,7 +8,7 @@ import javafx.scene.layout.Region;
 
 import java.io.File;
 
-public class FxSupport {
+public final class FxSupport {
     private FxSupport() {
     }
 
