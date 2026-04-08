@@ -443,3 +443,89 @@ public class AppState {
         persistUser(currentUser);
         return new ActionResult(true, "Listing marked as sold.");
     }
+    public ActionResult resetPersistenceToSeed() {
+        seed();
+        if (repository != null) {
+            repository.clearAll();
+            for (User user : users.values()) {
+                repository.saveUser(user);
+            }
+            for (Listing listing : listings) {
+                repository.saveListing(listing);
+            }
+            for (ListingRequest request : requests) {
+                repository.saveRequest(request);
+            }
+            loadFromRepository();
+            normalizeAllUserPasswords();
+        }
+        return new ActionResult(true, "Seed data reset completed.");
+    }
+
+    private void persistUser(User user) {
+        if (repository != null) {
+            repository.saveUser(user);
+        }
+    }
+
+    private void persistListing(Listing listing) {
+        if (repository != null) {
+            repository.saveListing(listing);
+        }
+    }
+
+    private void persistRequest(ListingRequest request) {
+        if (repository != null) {
+            repository.saveRequest(request);
+        }
+    }
+
+    private void deleteRequest(String requestId) {
+        if (repository != null) {
+            repository.deleteRequest(requestId);
+        }
+    }
+
+    private void cleanupExpiredListings() {
+        List<Listing> expiredListings = listings.stream()
+            .filter(Listing::isExpired)
+            .toList();
+        if (expiredListings.isEmpty()) {
+            return;
+        }
+        Set<String> expiredIds = expiredListings.stream()
+            .map(Listing::getListingId)
+            .collect(Collectors.toSet());
+        listings.removeIf(listing -> expiredIds.contains(listing.getListingId()));
+        for (User user : users.values()) {
+            user.getFavoriteListingIds().removeIf(expiredIds::contains);
+            persistUser(user);
+        }
+        if (repository != null) {
+            for (String listingId : expiredIds) {
+                repository.deleteListing(listingId);
+            }
+        }
+    }
+
+    private void normalizeAllUserPasswords() {
+        for (User user : users.values()) {
+            user.setPassword("1234");
+            persistUser(user);
+        }
+    }
+
+    private void normalizePremiumStatuses() {
+        for (User user : users.values()) {
+            updatePremiumStatus(user);
+        }
+    }
+
+    private void updatePremiumStatus(User user) {
+        user.setPremium(user.getCompletedSales() >= 10);
+    }
+
+    private String generateCode() {
+        return String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
+    }
+}
