@@ -217,3 +217,102 @@ public class AppState {
         }
         return null;
     }
+     public ActionResult sendSignUpVerificationCode(String email, String name, String surname, String department, String password) {
+        if (findUserByEmail(email) != null) {
+            return new ActionResult(false, "This e-mail is already registered.");
+        }
+        if (!mailService.isConfigured()) {
+            return new ActionResult(false, "SMTP settings are missing. Please configure e-mail sending first.");
+        }
+        String code = generateCode();
+        try {
+            mailService.sendVerificationCode(email, code, "Sign Up");
+            pendingRegistrations.put(email.toLowerCase(), new PendingRegistration(email, name, surname, department, password, code));
+            return new ActionResult(true, "Verification code sent to " + email + ".");
+        } catch (MessagingException exception) {
+            return new ActionResult(false, "E-mail could not be sent: " + exception.getMessage());
+        }
+    }
+
+    public ActionResult verifySignUpCode(String email, String code) {
+        PendingRegistration pending = pendingRegistrations.get(email.toLowerCase());
+        if (pending == null) {
+            return new ActionResult(false, "No pending sign-up request found for this e-mail.");
+        }
+        if (!pending.code().equals(code)) {
+            return new ActionResult(false, "Verification code is incorrect.");
+        }
+        registerUser(pending.email(), pending.name(), pending.surname(), pending.department(), pending.password());
+        pendingRegistrations.remove(email.toLowerCase());
+        return new ActionResult(true, "Account created successfully.");
+    }
+
+    public ActionResult sendPasswordResetCode(String email) {
+        User user = findUserByEmail(email);
+        if (user == null) {
+            return new ActionResult(false, "No account found for this e-mail.");
+        }
+        if (!mailService.isConfigured()) {
+            return new ActionResult(false, "SMTP settings are missing. Please configure e-mail sending first.");
+        }
+        String code = generateCode();
+        try {
+            mailService.sendVerificationCode(email, code, "Password Reset");
+            passwordResetCodes.put(email.toLowerCase(), code);
+            return new ActionResult(true, "Verification code sent to " + email + ".");
+        } catch (MessagingException exception) {
+            return new ActionResult(false, "E-mail could not be sent: " + exception.getMessage());
+        }
+    }
+
+    public ActionResult resetPassword(String email, String code, String newPassword) {
+        User user = findUserByEmail(email);
+        if (user == null) {
+            return new ActionResult(false, "No account found for this e-mail.");
+        }
+        String expectedCode = passwordResetCodes.get(email.toLowerCase());
+        if (expectedCode == null) {
+            return new ActionResult(false, "No reset request found for this e-mail.");
+        }
+        if (!expectedCode.equals(code)) {
+            return new ActionResult(false, "Verification code is incorrect.");
+        }
+        user.setPassword(newPassword);
+        persistUser(user);
+        passwordResetCodes.remove(email.toLowerCase());
+        return new ActionResult(true, "Password updated successfully.");
+    }
+
+    public ActionResult changeCurrentUserPassword(String currentPassword, String newPassword, String confirmPassword) {
+        if (currentUser == null) {
+            return new ActionResult(false, "No active user found.");
+        }
+        if (currentPassword == null || currentPassword.isBlank() || newPassword == null || newPassword.isBlank()
+            || confirmPassword == null || confirmPassword.isBlank()) {
+            return new ActionResult(false, "Please fill in all password fields.");
+        }
+        if (!currentUser.matchesPassword(currentPassword)) {
+            return new ActionResult(false, "Current password is incorrect.");
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            return new ActionResult(false, "New passwords do not match.");
+        }
+        currentUser.setPassword(newPassword);
+        persistUser(currentUser);
+        return new ActionResult(true, "Password updated successfully.");
+    }
+
+    public ActionResult updateCurrentUserProfile(String name, String surname, String department) {
+        if (currentUser == null) {
+            return new ActionResult(false, "No active user found.");
+        }
+        if (name == null || name.isBlank() || surname == null || surname.isBlank()
+            || department == null || department.isBlank() || "Choose Department".equals(department)) {
+            return new ActionResult(false, "Please fill in all profile fields.");
+        }
+        currentUser.setName(name.trim());
+        currentUser.setSurname(surname.trim());
+        currentUser.setDepartment(department.trim());
+        persistUser(currentUser);
+        return new ActionResult(true, "Profile updated successfully.");
+    }
