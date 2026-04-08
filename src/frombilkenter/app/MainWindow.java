@@ -568,4 +568,168 @@ public class MainWindow extends JFrame{
         }
     }
 
+    private class LeaderboardPanel extends JPanel {
+        private final JPanel rows = new JPanel(new GridLayout(0, 5, 24, 18));
+
+        LeaderboardPanel() {
+            setBackground(Color.WHITE);
+            setLayout(new BorderLayout());
+            JPanel content = new JPanel();
+            content.setBackground(Color.WHITE);
+            content.setBorder(BorderFactory.createEmptyBorder(38, 110, 38, 110));
+            content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+            content.add(label("Leaderboard", Theme.TEXT, 26, Font.BOLD));
+            content.add(Box.createVerticalStrut(42));
+            rows.setOpaque(false);
+            content.add(rows);
+            add(content, BorderLayout.NORTH);
+        }
+
+        void refresh() {
+            rows.removeAll();
+            for (String head : List.of("Rank", "Name", "Department", "Sales", "Status")) {
+                rows.add(label(head, Theme.MUTED, 15, Font.BOLD));
+            }
+            int rank = 1;
+            for (User user : appState.getLeaderboardUsers()) {
+                rows.add(label(String.valueOf(rank++), Theme.TEXT, 15, Font.PLAIN));
+                rows.add(label(user.getFullName(), Theme.TEXT, 15, Font.BOLD));
+                rows.add(label(user.getDepartment(), Theme.MUTED, 15, Font.PLAIN));
+                rows.add(label(String.valueOf(user.getCompletedSales()), Theme.TEXT, 15, Font.PLAIN));
+                rows.add(label(user.isPremium() ? "Premium" : "—", user.isPremium() ? Theme.PRIMARY_DARK : Theme.MUTED, 15, Font.PLAIN));
+            }
+            rows.revalidate();
+            rows.repaint();
+        }
+    }
+
+    private class ProfilePanel extends JPanel {
+        private final JPanel requestsPanel = new JPanel(new BorderLayout());
+        private final JPanel listingsPanel = new JPanel(new GridLayout(0, 2, 26, 26));
+        private final JPanel favoritesPanel = new JPanel(new GridLayout(0, 1, 18, 18));
+
+        ProfilePanel() {
+            setBackground(Color.WHITE);
+            setLayout(new BorderLayout());
+            JPanel content = new JPanel();
+            content.setBackground(Color.WHITE);
+            content.setBorder(BorderFactory.createEmptyBorder(34, 70, 50, 70));
+            content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+            content.add(label(appState.getCurrentUser().getFullName(), Theme.TEXT, 26, Font.BOLD));
+            content.add(Box.createVerticalStrut(28));
+
+            JPanel summary = new JPanel(new GridLayout(4, 2, 16, 18));
+            summary.setOpaque(false);
+            addSummary(summary, "Department", appState.getCurrentUser().getDepartment());
+            addSummary(summary, "Active Listings", String.valueOf(appState.getMyListings().size()));
+            addSummary(summary, "Completed Sales", String.valueOf(appState.getCurrentUser().getCompletedSales()));
+            addSummary(summary, "Status", appState.getCurrentUser().isPremium() ? "Premium" : "Standard");
+            content.add(summary);
+            content.add(Box.createVerticalStrut(24));
+
+            JButton edit = UiFactory.primaryButton("Edit Profile");
+            edit.addActionListener(e -> JOptionPane.showMessageDialog(this, "Profile edit flow can be attached here."));
+            JButton changePassword = UiFactory.secondaryButton("Change Password");
+            changePassword.addActionListener(e -> showChangePasswordDialog());
+            content.add(edit);
+            content.add(Box.createVerticalStrut(10));
+            content.add(changePassword);
+            content.add(Box.createVerticalStrut(40));
+
+            content.add(label("My Requests", Theme.TEXT, 24, Font.BOLD));
+            content.add(Box.createVerticalStrut(16));
+            requestsPanel.setOpaque(false);
+            content.add(requestsPanel);
+            content.add(Box.createVerticalStrut(40));
+
+            content.add(label("My Listings", Theme.TEXT, 24, Font.BOLD));
+            content.add(Box.createVerticalStrut(18));
+            listingsPanel.setOpaque(false);
+            content.add(listingsPanel);
+            content.add(Box.createVerticalStrut(40));
+
+            content.add(label("Favorites", Theme.TEXT, 24, Font.BOLD));
+            content.add(Box.createVerticalStrut(18));
+            favoritesPanel.setOpaque(false);
+            content.add(favoritesPanel);
+            add(content, BorderLayout.NORTH);
+        }
+
+        void refresh() {
+            requestsPanel.removeAll();
+            String[] columns = {"Title", "Category", "Price", "Status", "Submitted"};
+            DefaultTableModel model = new DefaultTableModel(columns, 0);
+            for (ListingRequest request : appState.getRequests()) {
+                if (request.getListing().getSellerId().equals(appState.getCurrentUser().getUserId())) {
+                    model.addRow(new Object[]{
+                        request.getListing().getTitle(),
+                        request.getListing().getCategory(),
+                        "₺" + request.getListing().getPrice(),
+                        "Pending Admin Approval",
+                        request.getSubmittedDate()
+                    });
+                }
+            }
+            for (Listing listing : appState.getMyListings()) {
+                model.addRow(new Object[]{
+                    listing.getTitle(),
+                    listing.getCategory(),
+                    "₺" + listing.getPrice(),
+                    listing.getStatus().name(),
+                    listing.getCreatedAt().toLocalDate()
+                });
+            }
+            JTable table = new JTable(model);
+            table.setRowHeight(34);
+            requestsPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+            listingsPanel.removeAll();
+            for (Listing listing : appState.getMyListings()) {
+                listingsPanel.add(new CompactListingCard(listing, true));
+            }
+            favoritesPanel.removeAll();
+            for (Listing listing : appState.getFavorites()) {
+                favoritesPanel.add(new CompactListingCard(listing, false));
+            }
+
+            requestsPanel.revalidate();
+            listingsPanel.revalidate();
+            favoritesPanel.revalidate();
+            repaint();
+        }
+
+        private void addSummary(JPanel panel, String key, String value) {
+            panel.add(label(key, Theme.MUTED, 15, Font.PLAIN));
+            JLabel valueLabel = label(value, value.equals("Premium") ? Theme.PRIMARY_DARK : Theme.TEXT, 15, Font.PLAIN);
+            valueLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+            panel.add(valueLabel);
+        }
+    }
+
+    private class CompactListingCard extends JPanel {
+        CompactListingCard(Listing listing, boolean showExpiry) {
+            setLayout(new BorderLayout(18, 12));
+            setBackground(Color.WHITE);
+            add(new JLabel(loadImage(listing.getImagePath(), 110, 90)), BorderLayout.WEST);
+            JPanel text = new JPanel();
+            text.setOpaque(false);
+            text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
+            text.add(wrapLabel(listing.getTitle(), Theme.TEXT, 16, Font.BOLD, 300));
+            text.add(Box.createVerticalStrut(8));
+            text.add(label(listing.getPrice() == 0 ? "FREE" : "TL " + listing.getPrice(), Theme.TEXT, 16, Font.BOLD));
+            text.add(Box.createVerticalStrut(8));
+            if (showExpiry) {
+                text.add(label("Expires in: " + listing.getRemainingDays() + " days", Theme.MUTED, 14, Font.PLAIN));
+            } else {
+                text.add(wrapLabel("Seller: " + appState.getSeller(listing).getFullName(), Theme.MUTED, 14, Font.PLAIN, 300));
+                text.add(wrapLabel("Remaining Time: " + listing.getRemainingDays() + " days", Theme.MUTED, 14, Font.PLAIN, 300));
+            }
+            add(text, BorderLayout.CENTER);
+        }
+    }
+
+    private class AdminPanel extends JPanel {
+        private final JPanel cards = new JPanel();
+
+
 }
