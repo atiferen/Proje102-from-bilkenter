@@ -1,4 +1,4 @@
-package src.frombilkenter.ui;
+package frombilkenter.ui;
 
 public class Theme {
     
