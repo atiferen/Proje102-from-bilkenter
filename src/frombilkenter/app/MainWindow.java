@@ -266,4 +266,80 @@ public class MainWindow extends JFrame{
             return button;
         }
     }
+
+    private class HomePanel extends JPanel {
+        private final JPanel listingGrid = new JPanel(new GridLayout(0, 3, 26, 34));
+        private final JComboBox<AppState.SortMode> sortBox = new JComboBox<>(AppState.SortMode.values());
+        private final JTextField searchField = UiFactory.textField("Search...");
+
+        HomePanel() {
+            setBackground(Theme.FILTER_BG);
+            setLayout(new BorderLayout());
+            JPanel content = new JPanel();
+            content.setBackground(Theme.FILTER_BG);
+            content.setBorder(BorderFactory.createEmptyBorder(24, 42, 42, 42));
+            content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+
+            JPanel topBar = new JPanel(new BorderLayout());
+            topBar.setOpaque(false);
+            JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+            left.setOpaque(false);
+            JButton filters = UiFactory.secondaryButton("Filters");
+            filters.addActionListener(e -> showFiltersDialog());
+            left.add(filters);
+            searchField.setPreferredSize(new Dimension(220, 40));
+            searchField.addActionListener(e -> {
+                filterState.search = searchField.getText();
+                refresh();
+            });
+            left.add(searchField);
+            topBar.add(left, BorderLayout.WEST);
+
+            JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+            right.setOpaque(false);
+            right.add(label("Sort by", Theme.MUTED, 14, Font.PLAIN));
+            sortBox.addActionListener(e -> {
+                sortMode = (AppState.SortMode) sortBox.getSelectedItem();
+                refresh();
+            });
+            sortBox.setPreferredSize(new Dimension(210, 40));
+            sortBox.setPrototypeDisplayValue(AppState.SortMode.PRICE_HIGH_LOW);
+            right.add(sortBox);
+            topBar.add(right, BorderLayout.EAST);
+
+            listingGrid.setOpaque(false);
+            content.add(topBar);
+            content.add(UiFactory.spacer(30));
+            content.add(section("Premium Listings"));
+            content.add(UiFactory.spacer(12));
+            content.add(listingGrid);
+            add(content, BorderLayout.NORTH);
+        }
+
+        private JPanel section(String text) {
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            panel.setOpaque(false);
+            panel.add(label(text, Theme.MUTED, 18, Font.BOLD));
+            return panel;
+        }
+
+        void refresh() {
+            listingGrid.removeAll();
+            List<Listing> all = appState.getApprovedListings(filterState, sortMode);
+            List<Listing> premium = all.stream().filter(l -> appState.getSeller(l).isPremium()).limit(2).toList();
+            List<Listing> other = all.stream().filter(l -> !premium.contains(l)).toList();
+            for (Listing listing : premium) {
+                listingGrid.add(new ListingCard(listing, true));
+            }
+            if (!other.isEmpty()) {
+                listingGrid.add(section("Other Listings"));
+                for (Listing listing : other) {
+                    listingGrid.add(new ListingCard(listing, false));
+                }
+            }
+            listingGrid.revalidate();
+            listingGrid.repaint();
+        }
+    }
+
 }
