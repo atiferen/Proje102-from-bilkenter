@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="frombilkenter.fx.controller.SignUpController"
+           styleClass="auth-root">
+    <VBox alignment="CENTER" spacing="22" maxWidth="420" styleClass="auth-card">
+        <children>
+            <ImageView fitWidth="180" fitHeight="180" preserveRatio="true">
+                <image>
+                    <Image url="@/images/logo.png"/>
+                </image>
+            </ImageView>
+            <TextField fx:id="emailField" promptText="Bilkent E-mail" styleClass="underline-field"/>
+            <HBox spacing="18" maxWidth="420">
+                <children>
+                    <TextField fx:id="nameField" promptText="Name" styleClass="underline-field" HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="surnameField" promptText="Surname" styleClass="underline-field" HBox.hgrow="ALWAYS"/>
+                </children>
+            </HBox>
+            <ChoiceBox fx:id="departmentChoice" styleClass="underline-choicebox" prefWidth="420"/>
+            <PasswordField fx:id="passwordField" promptText="Password" styleClass="underline-field"/>
+            <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" styleClass="underline-field"/>
+            <Button text="Create Account" onAction="#handleCreateAccount" styleClass="primary-button auth-button" maxWidth="420"/>
+            <Hyperlink text="Already have an account?" onAction="#handleBackToLogin" styleClass="subtle-link"/>
+        </children>
+        <padding>
+            <Insets top="24" right="20" bottom="24" left="20"/>
+        </padding>
+    </VBox>
+</StackPane>

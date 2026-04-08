@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="frombilkenter.fx.controller.SellController"
+           styleClass="page-root">
+    <VBox spacing="16" maxWidth="500">
+        <children>
+            <Label fx:id="formTitleLabel" text="Create Sale Ad Request" styleClass="page-title"/>
+            <HBox spacing="10">
+                <children>
+                    <Button fx:id="saleModeButton" text="Sale Ad" onAction="#switchToSaleMode" styleClass="primary-button"/>
+                    <Button fx:id="giveawayModeButton" text="Giveaway Ad" onAction="#switchToGiveawayMode" styleClass="secondary-button"/>
+                </children>
+            </HBox>
+            <Label fx:id="giveawayNoticeLabel" text="This item will be listed as FREE" styleClass="danger-label" visible="false" managed="false"/>
+            <TextField fx:id="titleField" promptText="Title" styleClass="app-text-field"/>
+            <ChoiceBox fx:id="categoryChoice" prefWidth="500" styleClass="app-choicebox"/>
+            <TextField fx:id="brandField" promptText="Brand (optional)" styleClass="app-text-field" visible="false" managed="false"/>
+            <ChoiceBox fx:id="sizeChoice" prefWidth="500" styleClass="app-choicebox" visible="false" managed="false"/>
+            <TextField fx:id="courseCodeField" promptText="Course Code (e.g., CS102)" styleClass="app-text-field" visible="false" managed="false"/>
+            <TextField fx:id="phoneField" promptText="Phone Number" styleClass="app-text-field"/>
+            <TextField fx:id="priceField" promptText="Price (₺)" styleClass="app-text-field"/>
+            <ChoiceBox fx:id="conditionChoice" prefWidth="500" styleClass="app-choicebox"/>
+            <TextArea fx:id="descriptionArea" prefRowCount="6" wrapText="true" promptText="Description" styleClass="app-text-area sell-description"/>
+            <CheckBox fx:id="emailVisibilityCheck" text="Show my university email publicly" styleClass="filter-check"/>
+            <VBox alignment="CENTER" spacing="10" onMouseClicked="#chooseImage" styleClass="upload-box">
+                <children>
+                    <ImageView fx:id="uploadPreview" fitWidth="150" fitHeight="95" preserveRatio="false" visible="false" managed="false"/>
+                    <Label text="Upload Image" styleClass="upload-title"/>
+                    <Label text="Choose a photo from your computer for the listing preview" styleClass="muted-label" wrapText="true" maxWidth="320"/>
+                    <Label fx:id="uploadName" text="No file selected" styleClass="upload-file-name"/>
+                </children>
+            </VBox>
+            <Button text="Send Request" onAction="#submitRequest" styleClass="primary-button" maxWidth="500"/>
+        </children>
+        <padding>
+            <Insets top="24" right="24" bottom="24" left="24"/>
+        </padding>
+    </VBox>
+</StackPane>
