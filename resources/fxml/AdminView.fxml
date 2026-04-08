@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="frombilkenter.fx.controller.AdminController"
+      spacing="20" styleClass="content-root">
+    <children>
+        <Label text="Admin Panel" styleClass="page-title"/>
+        <Label text="Pending Sale Listings" styleClass="section-title"/>
+        <VBox fx:id="requestContainer" spacing="12"/>
+        <Label text="Approved Listings" styleClass="section-title"/>
+        <VBox fx:id="approvedContainer" spacing="12"/>
+        <Label text="Rejected Listings" styleClass="section-title"/>
+        <VBox fx:id="rejectedContainer" spacing="12"/>
+    </children>
+    <padding>
+        <Insets top="32" right="60" bottom="50" left="60"/>
+    </padding>
+</VBox>

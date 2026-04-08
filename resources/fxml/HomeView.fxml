@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="frombilkenter.fx.controller.HomeController"
+      spacing="26" styleClass="home-root">
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="14" styleClass="dashboard-toolbar">
+            <children>
+                <Button fx:id="filterButton" text="Filters" onAction="#toggleFilters" styleClass="secondary-button filter-button"/>
+                <TextField fx:id="searchField" promptText="Search..." styleClass="app-text-field search-field" prefWidth="250"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label text="Sort by" styleClass="muted-label"/>
+                <ChoiceBox fx:id="sortChoice" prefWidth="220" styleClass="app-choicebox"/>
+            </children>
+        </HBox>
+
+        <HBox spacing="36" VBox.vgrow="ALWAYS">
+            <children>
+                <VBox fx:id="filtersPane" spacing="22" styleClass="filter-sidebar" visible="false" managed="false">
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label text="Filters" styleClass="page-subtitle"/>
+                                <Pane HBox.hgrow="ALWAYS"/>
+                                <Button text="×" onAction="#toggleFilters" styleClass="icon-text-button"/>
+                            </children>
+                        </HBox>
+
+                        <VBox spacing="10">
+                            <children>
+                                <Label text="Category" styleClass="muted-label"/>
+                                <CheckBox fx:id="booksCheck" text="Books / Course Materials" onAction="#applyFilters" styleClass="filter-check"/>
+                                <CheckBox fx:id="electronicsCheck" text="Electronics" onAction="#applyFilters" styleClass="filter-check"/>
+                                <CheckBox fx:id="clothingCheck" text="Clothing" onAction="#applyFilters" styleClass="filter-check"/>
+                                <CheckBox fx:id="vehiclesCheck" text="Vehicles" onAction="#applyFilters" styleClass="filter-check"/>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="12">
+                            <children>
+                                <Label text="Color" styleClass="muted-label"/>
+                                <FlowPane hgap="10" vgap="10">
+                                    <children>
+                                        <Button fx:id="blackColorButton" onAction="#toggleBlack" styleClass="color-button" style="-fx-background-color: #000000; -fx-border-color: #111827;"/>
+                                        <Button fx:id="whiteColorButton" onAction="#toggleWhite" styleClass="color-button" style="-fx-background-color: #FFFFFF; -fx-border-color: #D1D5DB;"/>
+                                        <Button fx:id="grayColorButton" onAction="#toggleGray" styleClass="color-button" style="-fx-background-color: #A8B0BF; -fx-border-color: #A8B0BF;"/>
+                                        <Button fx:id="redColorButton" onAction="#toggleRed" styleClass="color-button" style="-fx-background-color: #F94144; -fx-border-color: #F94144;"/>
+                                        <Button fx:id="blueColorButton" onAction="#toggleBlue" styleClass="color-button" style="-fx-background-color: #3B82F6; -fx-border-color: #3B82F6;"/>
+                                        <Button fx:id="greenColorButton" onAction="#toggleGreen" styleClass="color-button" style="-fx-background-color: #10B981; -fx-border-color: #10B981;"/>
+                                    </children>
+                                </FlowPane>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10">
+                            <children>
+                                <Label text="Condition" styleClass="muted-label"/>
+                                <CheckBox fx:id="newCheck" text="New" onAction="#applyFilters" styleClass="filter-check"/>
+                                <CheckBox fx:id="likeNewCheck" text="Like New" onAction="#applyFilters" styleClass="filter-check"/>
+                                <CheckBox fx:id="goodCheck" text="Good" onAction="#applyFilters" styleClass="filter-check"/>
+                                <CheckBox fx:id="fairCheck" text="Fair" onAction="#applyFilters" styleClass="filter-check"/>
+                                <CheckBox fx:id="poorCheck" text="Poor" onAction="#applyFilters" styleClass="filter-check"/>
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10">
+                            <children>
+                                <Label text="Premium Only" styleClass="muted-label"/>
+                                <CheckBox fx:id="premiumOnlyCheck" text="Show only premium listings" onAction="#applyFilters" styleClass="filter-check"/>
+                            </children>
+                        </VBox>
+
+                        <Button text="Clear All" onAction="#clearFilters" styleClass="text-link-button"/>
+                        <Region VBox.vgrow="ALWAYS"/>
+                    </children>
+                    <padding>
+                        <Insets top="8" right="8" bottom="8" left="8"/>
+                    </padding>
+                </VBox>
+
+                <VBox spacing="28" HBox.hgrow="ALWAYS">
+                    <children>
+                        <VBox spacing="12">
+                            <children>
+                                <Label text="Premium Listings" styleClass="section-title"/>
+                                <FlowPane fx:id="premiumPane" hgap="28" vgap="28" prefWrapLength="980"/>
+                            </children>
+                        </VBox>
+                        <VBox spacing="12">
+                            <children>
+                                <Label text="Other Listings" styleClass="section-title"/>
+                                <FlowPane fx:id="otherPane" hgap="28" vgap="28" prefWrapLength="980"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+    <padding>
+        <Insets top="34" right="56" bottom="56" left="56"/>
+    </padding>
+</VBox>

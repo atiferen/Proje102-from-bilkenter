@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="frombilkenter.fx.controller.LeaderboardController"
+      spacing="24" styleClass="content-root">
+    <children>
+        <Label text="Leaderboard" styleClass="page-title"/>
+        <TableView fx:id="leaderboardTable" prefHeight="700" styleClass="leaderboard-table">
+            <columns>
+                <TableColumn fx:id="rankColumn" text="Rank" prefWidth="120"/>
+                <TableColumn fx:id="nameColumn" text="Name" prefWidth="300"/>
+                <TableColumn fx:id="departmentColumn" text="Department" prefWidth="360"/>
+                <TableColumn fx:id="salesColumn" text="Sales" prefWidth="140"/>
+                <TableColumn fx:id="statusColumn" text="Status" prefWidth="180"/>
+            </columns>
+        </TableView>
+    </children>
+    <padding>
+        <Insets top="38" right="110" bottom="38" left="110"/>
+    </padding>
+</VBox>

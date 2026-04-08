@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="frombilkenter.fx.controller.DetailController"
+      spacing="42" styleClass="detail-root">
+    <children>
+        <ImageView fx:id="listingImage" fitWidth="520" fitHeight="650" preserveRatio="false"/>
+        <VBox spacing="18" HBox.hgrow="ALWAYS">
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label fx:id="titleLabel" styleClass="detail-title" maxWidth="820"/>
+                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="favoriteButton" text="♡" onAction="#toggleFavorite" styleClass="icon-button"/>
+                    </children>
+                </HBox>
+                <Label fx:id="priceLabel" styleClass="detail-price"/>
+                <Button text="Contact Seller" onAction="#contactSeller" styleClass="primary-button" maxWidth="460"/>
+                <Label fx:id="expiresLabel" styleClass="subtle-value"/>
+                <GridPane fx:id="infoGrid" hgap="24" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="38"/>
+                        <ColumnConstraints percentWidth="62"/>
+                    </columnConstraints>
+                </GridPane>
+                <TextArea fx:id="descriptionArea" wrapText="true" editable="false" prefRowCount="8" styleClass="detail-description"/>
+            </children>
+        </VBox>
+    </children>
+    <padding>
+        <Insets top="30" right="50" bottom="50" left="50"/>
+    </padding>
+</HBox>
