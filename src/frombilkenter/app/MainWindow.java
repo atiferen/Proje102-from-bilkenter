@@ -174,4 +174,58 @@ public class MainWindow extends JFrame{
         body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
         return body;
     }
+
+    private class LoginPanel extends JPanel {
+        LoginPanel() {
+            setLayout(new GridBagLayout());
+            setBackground(Color.WHITE);
+
+            JPanel card = new JPanel();
+            card.setOpaque(false);
+            card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+            card.setPreferredSize(new Dimension(430, 640));
+
+            JLabel logo = new JLabel(loadImage("assets/logo.png", 180, 180));
+            logo.setAlignmentX(Component.CENTER_ALIGNMENT);
+            card.add(Box.createVerticalStrut(12));
+            card.add(logo);
+            card.add(Box.createVerticalStrut(34));
+
+            JTextField email = UiFactory.textField("Bilkent E-mail");
+            JTextField password = UiFactory.textField("Password");
+            JButton forgot = new JButton("Forgot Password?");
+            forgot.setContentAreaFilled(false);
+            forgot.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
+            forgot.setForeground(Theme.MUTED);
+            forgot.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            JButton signIn = UiFactory.primaryButton("Sign In");
+            JButton createAccount = new JButton("Create Account");
+            createAccount.setContentAreaFilled(false);
+            createAccount.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+            createAccount.setForeground(Theme.MUTED);
+            createAccount.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            for (JComponent c : List.of(email, password, signIn)) {
+                c.setAlignmentX(Component.CENTER_ALIGNMENT);
+                c.setPreferredSize(new Dimension(370, 46));
+                c.setMaximumSize(new Dimension(370, 46));
+                card.add(c);
+                card.add(Box.createVerticalStrut(14));
+            }
+
+            forgot.setAlignmentX(Component.CENTER_ALIGNMENT);
+            forgot.setFont(Theme.SMALL.deriveFont(14f));
+            card.add(forgot);
+            card.add(Box.createVerticalStrut(10));
+            createAccount.setFont(Theme.SMALL.deriveFont(14f));
+            card.add(createAccount);
+
+            signIn.addActionListener(e -> showPage(PAGE_HOME));
+            forgot.addActionListener(e -> showResetPasswordDialog());
+            createAccount.addActionListener(e -> showRegistrationDialog());
+
+            add(card);
+        }
+    }
 }
