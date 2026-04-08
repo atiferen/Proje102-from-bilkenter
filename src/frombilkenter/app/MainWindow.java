@@ -530,7 +530,7 @@ public class MainWindow extends JFrame{
             JButton submit = UiFactory.primaryButton("Send Request");
             submit.addActionListener(e -> {
                 int price = Integer.parseInt(priceField.getText().trim());
-                appState.submitRequest(titleField.getText(), (String) categoryBox.getSelectedItem(), brandField.getText(),
+                appState.submitRequest(titleField.getText(), (String) categoryBox.getSelectedItem(), "Gray", brandField.getText(),
                     price, (String) conditionBox.getSelectedItem(), description.getText(), selectedImagePath, "", true,
                     false, "", "");
                 JOptionPane.showMessageDialog(this, "Request submitted for admin approval.");
@@ -596,7 +596,7 @@ public class MainWindow extends JFrame{
                 rows.add(label(user.getFullName(), Theme.TEXT, 15, Font.BOLD));
                 rows.add(label(user.getDepartment(), Theme.MUTED, 15, Font.PLAIN));
                 rows.add(label(String.valueOf(user.getCompletedSales()), Theme.TEXT, 15, Font.PLAIN));
-                rows.add(label(user.isPremium() ? "Premium" : "—", user.isPremium() ? Theme.PRIMARY_DARK : Theme.MUTED, 15, Font.PLAIN));
+                rows.add(label(user.isPremium() ? "Premium" : "â€”", user.isPremium() ? Theme.PRIMARY_DARK : Theme.MUTED, 15, Font.PLAIN));
             }
             rows.revalidate();
             rows.repaint();
@@ -664,7 +664,7 @@ public class MainWindow extends JFrame{
                     model.addRow(new Object[]{
                         request.getListing().getTitle(),
                         request.getListing().getCategory(),
-                        "₺" + request.getListing().getPrice(),
+                        "â‚º" + request.getListing().getPrice(),
                         "Pending Admin Approval",
                         request.getSubmittedDate()
                     });
@@ -674,7 +674,7 @@ public class MainWindow extends JFrame{
                 model.addRow(new Object[]{
                     listing.getTitle(),
                     listing.getCategory(),
-                    "₺" + listing.getPrice(),
+                    "â‚º" + listing.getPrice(),
                     listing.getStatus().name(),
                     listing.getCreatedAt().toLocalDate()
                 });
@@ -1019,3 +1019,4 @@ public class MainWindow extends JFrame{
     }
 
 }
+

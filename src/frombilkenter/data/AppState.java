@@ -408,10 +408,10 @@ public class AppState {
         deleteRequest(request.getRequestId());
     }
 
-    public void submitRequest(String title, String category, String brand, int price, String condition, String description, String imagePath,
+    public void submitRequest(String title, String category, String color, String brand, int price, String condition, String description, String imagePath,
                               String phoneNumber, boolean emailVisible, boolean giveaway, String size, String courseCode) {
         String id = "r" + (requests.size() + 10);
-        Listing listing = new Listing("draft" + id, title, currentUser.getUserId(), category, "Space Gray", condition,
+        Listing listing = new Listing("draft" + id, title, currentUser.getUserId(), category, color, condition,
             giveaway ? 0 : price, giveaway, brand, size, courseCode, phoneNumber, imagePath, description, emailVisible,
             LocalDateTime.now(), LocalDateTime.now().plusDays(30), ListingStatus.PENDING);
         ListingRequest request = new ListingRequest(id, listing, LocalDate.now(), "");

@@ -27,6 +27,7 @@ public class SellController implements PageController {
     @FXML private ChoiceBox<String> sizeChoice;
     @FXML private TextField courseCodeField;
     @FXML private TextField phoneField;
+    @FXML private ChoiceBox<String> colorChoice;
     @FXML private TextField priceField;
     @FXML private ChoiceBox<String> conditionChoice;
     @FXML private TextArea descriptionArea;
@@ -44,9 +45,11 @@ public class SellController implements PageController {
         this.appState = appState;
         this.shellController = shellController;
         categoryChoice.getItems().setAll("Category", "Electronics", "Books / Course Materials", "Clothing", "Vehicles");
+        colorChoice.getItems().setAll("Color", "Black", "White", "Gray", "Red", "Blue", "Green", "Brown", "Silver");
         conditionChoice.getItems().setAll("Condition", "New", "Like New", "Good", "Fair", "Poor");
         sizeChoice.getItems().setAll("Size", "XS", "S", "M", "L", "XL");
         categoryChoice.setValue("Category");
+        colorChoice.setValue("Color");
         conditionChoice.setValue("Condition");
         sizeChoice.setValue("Size");
         emailVisibilityCheck.setSelected(false);
@@ -102,8 +105,8 @@ public class SellController implements PageController {
             showAlert(Alert.AlertType.WARNING, "Please upload an image before sending the request.");
             return;
         }
-        if ("Category".equals(categoryChoice.getValue()) || "Condition".equals(conditionChoice.getValue())) {
-            showAlert(Alert.AlertType.WARNING, "Please select category and condition.");
+        if ("Category".equals(categoryChoice.getValue()) || "Color".equals(colorChoice.getValue()) || "Condition".equals(conditionChoice.getValue())) {
+            showAlert(Alert.AlertType.WARNING, "Please select category, color and condition.");
             return;
         }
 
@@ -141,6 +144,7 @@ public class SellController implements PageController {
         appState.submitRequest(
             titleField.getText(),
             category,
+            colorChoice.getValue(),
             brand,
             price,
             conditionChoice.getValue(),

@@ -23,6 +23,7 @@
             <ChoiceBox fx:id="sizeChoice" prefWidth="500" styleClass="app-choicebox" visible="false" managed="false"/>
             <TextField fx:id="courseCodeField" promptText="Course Code (e.g., CS102)" styleClass="app-text-field" visible="false" managed="false"/>
             <TextField fx:id="phoneField" promptText="Phone Number" styleClass="app-text-field"/>
+            <ChoiceBox fx:id="colorChoice" prefWidth="500" styleClass="app-choicebox"/>
             <TextField fx:id="priceField" promptText="Price (₺)" styleClass="app-text-field"/>
             <ChoiceBox fx:id="conditionChoice" prefWidth="500" styleClass="app-choicebox"/>
             <TextArea fx:id="descriptionArea" prefRowCount="6" wrapText="true" promptText="Description" styleClass="app-text-area sell-description"/>
