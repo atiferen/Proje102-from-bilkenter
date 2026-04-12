@@ -1,5 +1,5 @@
-### <u>From Bilkenter App</u>
-### User Manual
+##### From Bilkenter App
+#### User Manual
 ### 6.1. Running the Application
 To run the application:  
 Make sure Java is installed on your system.  
