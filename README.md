@@ -1,4 +1,4 @@
-FROM BILKENTER
+Proje102-from-bilkenter
 User Manual
 6.1. Running the Application
 To run the application:
