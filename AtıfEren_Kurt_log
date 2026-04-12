@@ -1,1 +1,36 @@
+19 January - 25 January
+I joined the brainstorming process and discussed possible ideas for our application.
+
+26 January - 1 February
+We decided that our project would be a university-based marketplace application for Bilkent students and discussed its main features.
+
+2 February - 8 February
+We completed the Group Selection Stage Report.
+
+9 February - 15 February
+We completed the Requirements Stage Report.
+
+16 February - 22 February
+We discussed the database structure and decided to use MongoDB for our application.
+
+23 February - 1 March
+We worked on the user interface design and planned the layout of the main pages.
+
+2 March - 8 March
+We decided which libraries and technologies we would use in the project, such as JavaFX, FXML, MongoDB Java Driver, Jakarta Mail, and Maven.
+
+9 March - 15 March
+We completed the Detailed Design Report.
+
+16 March - 22 March
+Holiday week.
+
+23 March - 29 March
+I started implementing the JavaFX and FXML parts of the project. I focused on the UI structure and page organization.
+
+30 March - 5 April
+I implemented and improved several UI pages such as login, sign up, sell request, profile, product detail, leaderboard, and admin panel. I also worked on integrating UI components with the backend structure.
+
+6 April - 12 April
+I worked on the interactive features of the application, including e-mail verification, forgot password flow, profile editing, password changing, filtering, product detail actions, and seller-related operations. We also prepared the application for the demo.
 
